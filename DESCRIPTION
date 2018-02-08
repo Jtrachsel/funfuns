@@ -1,0 +1,12 @@
+Package: funfuns
+Type: Package
+Title: Functions I Use (Title Case)
+Version: 0.1.0
+Author: Julian Trachsel
+Maintainer: Julian Trachsel <julestrachsel@gmail.com>
+Description: A bunch of functions that I wrote and sometimes use.
+    Oatman has spotty paws.
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
