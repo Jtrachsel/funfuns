@@ -263,7 +263,7 @@ NMDS_ellipse <- function(metadata, OTU_table, grouping_set, distance_method = 'b
 
   metanmds <- cbind(metadata, nmds_points)
 
-  ord <- ordiellipse(generic_MDS, metanmds[[grouping_set]], label = TRUE, conf = .95, kind = 'se', draw = 'none')
+
 
   nmds.mean <- aggregate(metanmds[,grep("MDS", colnames(metanmds))], list(group=metanmds[[grouping_set]]), mean)
 
@@ -272,7 +272,8 @@ NMDS_ellipse <- function(metadata, OTU_table, grouping_set, distance_method = 'b
   #check to make sure at least 3 obs for each grouping_set
 
   numobs <- metanmds %>% group_by_(grouping_set) %>% summarise(n=n())
-  if(!(all(is.element(c(0,1,2), numobs$n)))){
+  if (min(numobs$n) >= 3){
+    ord <- ordiellipse(generic_MDS, metanmds[[grouping_set]], label = TRUE, conf = .95, kind = 'se', draw = 'none')
 
     df_ell <- data.frame()
     for (d in levels(metanmds[[grouping_set]])){
@@ -296,8 +297,11 @@ NMDS_ellipse <- function(metadata, OTU_table, grouping_set, distance_method = 'b
     }
     print(paste('Ordination stress:', stress, sep = ' '))
     return(list(metanmds, df_ell, generic_MDS))
-  }
-  print('One of your groups in "grouping_set" has less than 3 observations, cannot generate elipses')
+
+  } else {
+    warning('One of your groups in "grouping_set" has less than 3 observations, cannot generate elipses')
+    df_ell <- data.frame()
+    return(list(metanmds, df_ell, generic_MDS))}
 
 
 }
