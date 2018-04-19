@@ -9,7 +9,7 @@ NMDS_ellipse(metadata, OTU_table, grouping_set, distance_method = "bray",
   wascores = TRUE, expand = FALSE)
 }
 \arguments{
-\item{metadata}{A dataframe containing the metadata relating to the samples in your OTU table}
+\item{metadata}{A dataframe containing the metadata relating to the samples in your OTU table.  Seems to break if this dataframe only has 1 column.}
 
 \item{OTU_table}{an OTU table with samples as rows and taxa as columns}
 

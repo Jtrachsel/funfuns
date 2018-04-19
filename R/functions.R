@@ -184,12 +184,13 @@ gather_nodes <- function(x, typ=NA){
 #' @param factors a vector containing the groups you want compared
 #' @param sim.method distance metric to use for (dis)similarity values, default is 'bray'
 #' @param p.adjust.m method to use for pvalue correction.
+#' @param permutations number of permutations to use
 #'
 #' @return returns a dataframe containing the PERMANOVA rsq, fstat, and pvalue for each pariwise comparison
 #' @export
 #'
 #' @examples coming soon
-pairwise.adonis <- function(x,factors, sim.method, p.adjust.m){
+pairwise.adonis <- function(x,factors, sim.method = 'bray', p.adjust.m = 'none', permutations=999){
   #this function taken from https://www.researchgate.net/post/How_can_I_do_PerMANOVA_pairwise_contrasts_in_R
 
   require(vegan)
@@ -201,7 +202,7 @@ pairwise.adonis <- function(x,factors, sim.method, p.adjust.m){
 
   for(elem in 1:ncol(co)){
     ad = adonis(x[factors %in% c(as.character(co[1,elem]),as.character(co[2,elem])),] ~
-                  factors[factors %in% c(as.character(co[1,elem]),as.character(co[2,elem]))] , method =sim.method, permutations = 9999);
+                  factors[factors %in% c(as.character(co[1,elem]),as.character(co[2,elem]))] , method =sim.method, permutations = permutations);
     pairs = c(pairs,paste(co[1,elem],'vs',co[2,elem]));
     F.Model =c(F.Model,ad$aov.tab[1,4]);
     R2 = c(R2,ad$aov.tab[1,5]);
@@ -215,7 +216,7 @@ pairwise.adonis <- function(x,factors, sim.method, p.adjust.m){
 
 #' Generate NMDS points, group centroids and standard error ellipses
 #'
-#' @param metadata A dataframe containing the metadata relating to the samples in your OTU table
+#' @param metadata A dataframe containing the metadata relating to the samples in your OTU table.  Seems to break if this dataframe only has 1 column.
 #' @param OTU_table an OTU table with samples as rows and taxa as columns
 #' @param grouping_set a column name from your metadata.  This column should contain information
 #'   about how your samples should be grouped for centroid and ellipse calculation

@@ -4,7 +4,8 @@
 \alias{pairwise.adonis}
 \title{Pairwise adonis}
 \usage{
-pairwise.adonis(x, factors, sim.method, p.adjust.m)
+pairwise.adonis(x, factors, sim.method = "bray", p.adjust.m = "none",
+  permutations = 999)
 }
 \arguments{
 \item{x}{An OTU table with taxa as columns and samples as rows}
@@ -14,6 +15,8 @@ pairwise.adonis(x, factors, sim.method, p.adjust.m)
 \item{sim.method}{distance metric to use for (dis)similarity values, default is 'bray'}
 
 \item{p.adjust.m}{method to use for pvalue correction.}
+
+\item{permutations}{number of permutations to use}
 }
 \value{
 returns a dataframe containing the PERMANOVA rsq, fstat, and pvalue for each pariwise comparison
