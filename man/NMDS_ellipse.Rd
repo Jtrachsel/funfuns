@@ -5,7 +5,8 @@
 \title{Generate NMDS points, group centroids and standard error ellipses}
 \usage{
 NMDS_ellipse(metadata, OTU_table, grouping_set, distance_method = "bray",
-  rand_seed = 77777, MDS_trymax = 1000)
+  rand_seed = 77777, MDS_trymax = 1000, autotransform = FALSE,
+  wascores = TRUE, expand = FALSE)
 }
 \arguments{
 \item{metadata}{A dataframe containing the metadata relating to the samples in your OTU table}
@@ -21,6 +22,14 @@ accepted by the function vegdist()}
 \item{rand_seed}{numeric value to use as a random seed (for reproducability?)}
 
 \item{MDS_trymax}{number of iterations to use for the metaMDS call, default is 1000}
+
+\item{autotransform}{passed to vegan's metaMDS, should community data be transformed?
+Should be TRUE/FALSE.  Default = FALSE}
+
+\item{wascores}{passed to vegan's metaMDS, should species scores be calculated?
+Should be TRUE/FALSE.  Default = TRUE}
+
+\item{expand}{passed to vegan's metaMDS, should species scores be expanded?}
 }
 \value{
 Returns a list containing 3 items. [[1]] = input metadata with NMDS coordinates, group centroid coordinates for each sample.

@@ -178,25 +178,6 @@ gather_nodes <- function(x, typ=NA){
 
 }
 
-#' veganCovEllipse Helper function from vegan to calculate confidence ellipses given an MDS object
-#'
-#' @param cov .
-#' @param center .
-#' @param scale .
-#' @param npoints .
-#'
-#' @return .
-#' @export
-#'
-#' @examples ...
-veganCovEllipse <- function (cov, center = c(0,0), scale = 1, npoints = 100){
-  # this is a function in the vegan package?
-  theta <- (0:npoints) * 2 * pi/npoints
-  Circle <- cbind(cos(theta), sin(theta))
-  t(center + scale * t(Circle %*% chol(cov)))
-}
-
-
 #' Pairwise adonis
 #'
 #' @param x An OTU table with taxa as columns and samples as rows
@@ -242,6 +223,12 @@ pairwise.adonis <- function(x,factors, sim.method, p.adjust.m){
 #'  accepted by the function vegdist()
 #' @param rand_seed numeric value to use as a random seed (for reproducability?)
 #' @param MDS_trymax number of iterations to use for the metaMDS call, default is 1000
+#' @param autotransform passed to vegan's metaMDS, should community data be transformed?
+#'     Should be TRUE/FALSE.  Default = FALSE
+#' @param wascores passed to vegan's metaMDS, should species scores be calculated?
+#'     Should be TRUE/FALSE.  Default = TRUE
+#' @param expand passed to vegan's metaMDS, should species scores be expanded?
+#'
 #'
 #' @return Returns a list containing 3 items. [[1]] = input metadata with NMDS coordinates, group centroid coordinates for each sample.
 #'   [[2]] = a dataframe containing information about the standard error confidence ellipses for each group.  This datafame
@@ -251,14 +238,25 @@ pairwise.adonis <- function(x,factors, sim.method, p.adjust.m){
 #' @export
 #'
 #' @examples coming soon
-NMDS_ellipse <- function(metadata, OTU_table, grouping_set, distance_method = 'bray', rand_seed = 77777, MDS_trymax = 1000){
+NMDS_ellipse <- function(metadata, OTU_table, grouping_set,
+                         distance_method = 'bray',
+                         rand_seed = 77777,
+                         MDS_trymax = 1000,
+                         autotransform = FALSE,
+                         wascores = TRUE,
+                         expand = FALSE){
   require(vegan)
   if (grouping_set %in% colnames(metadata)){
     if (all(rownames(metadata) == rownames(OTU_table))){
 
-      generic_dist <- vegdist(OTU_table, method = distance_method)
       set.seed(rand_seed)
-      generic_MDS <- metaMDS(generic_dist, k = 2, trymax = MDS_trymax, autotransform = FALSE)
+      generic_MDS <- metaMDS(OTU_table, k = 2,
+                             trymax = MDS_trymax,
+                             autotransform = autotransform,
+                             distance = distance_method,
+                             wascores = wascores,
+                             expand = expand)
+
       stress <- generic_MDS$stress
       nmds_points <- as.data.frame(generic_MDS$points)
       metadata <- metadata[match(rownames(generic_MDS$points), rownames(metadata)),]
@@ -275,13 +273,13 @@ NMDS_ellipse <- function(metadata, OTU_table, grouping_set, distance_method = 'b
         df_ell <- data.frame()
         for (d in levels(metanmds[[grouping_set]])){
           df_ell <- rbind(df_ell, cbind(as.data.frame(with(metanmds[metanmds[[grouping_set]] == d,],
-                                                           veganCovEllipse(ord[[d]]$cov, ord[[d]]$center, ord[[d]]$scale))),group=d))
+                                                           vegan:::veganCovEllipse(ord[[d]]$cov, ord[[d]]$center, ord[[d]]$scale))),group=d))
         }
 
 
-        levels(metanmds[[grouping_set]])
 
-        # this loop assigns the group centroid X coordinates to each sample
+        # this loop assigns the group centroid X coordinates to each sample, there is probably a better way...
+
         metanmds$centroidX <- NA
         metanmds$centroidY <- NA
 
