@@ -2,7 +2,7 @@
 % Please edit documentation in R/functions.R
 \name{pairwise.adonis}
 \alias{pairwise.adonis}
-\title{Pairwise adonis}
+\title{this function taken from https://www.researchgate.net/post/How_can_I_do_PerMANOVA_pairwise_contrasts_in_R}
 \usage{
 pairwise.adonis(x, factors, sim.method = "bray", p.adjust.m = "none",
   permutations = 999)
