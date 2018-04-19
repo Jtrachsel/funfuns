@@ -22,7 +22,7 @@ pairwise.adonis(x, factors, sim.method = "bray", p.adjust.m = "none",
 returns a dataframe containing the PERMANOVA rsq, fstat, and pvalue for each pariwise comparison
 }
 \description{
-Pairwise adonis
+this function taken from https://www.researchgate.net/post/How_can_I_do_PerMANOVA_pairwise_contrasts_in_R
 }
 \examples{
 coming soon

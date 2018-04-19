@@ -180,6 +180,8 @@ gather_nodes <- function(x, typ=NA){
 
 #' Pairwise adonis
 #'
+#' this function taken from https://www.researchgate.net/post/How_can_I_do_PerMANOVA_pairwise_contrasts_in_R
+#'
 #' @param x An OTU table with taxa as columns and samples as rows
 #' @param factors a vector containing the groups you want compared
 #' @param sim.method distance metric to use for (dis)similarity values, default is 'bray'
