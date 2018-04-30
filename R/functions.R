@@ -325,7 +325,7 @@ NMDS_ellipse <- function(metadata, OTU_table, grouping_set,
 #' @export
 #'
 #' @examples coming soon
-Deseq.quickplot <- function(DeSeq.object,phyloseq.object, pvalue = 0.05, contrast.vector, taxlabel = 'Genus'){
+Deseq.quickplot <- function(DeSeq.object,phyloseq.object, pvalue = 0.05, contrast.vector, taxlabel = 'Genus', colors=NULL){
   require(ggplot2)
   require(phyloseq)
   require(DESeq2)
@@ -335,12 +335,31 @@ Deseq.quickplot <- function(DeSeq.object,phyloseq.object, pvalue = 0.05, contras
   sigtab$newp <- format(round(sigtab$padj, digits = 3), scientific = TRUE)
   sigtab$Treatment <- ifelse(sigtab$log2FoldChange >=0, contrast.vector[2], contrast.vector[3])
   sigtab$OTU <- rownames(sigtab)
-  deseq <- ggplot(sigtab, aes(x=reorder(rownames(sigtab), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-    geom_bar(stat='identity') + geom_text(aes_string(x='OTU', y=0, label = taxlabel), size=3)+
-    scale_fill_brewer(palette="Dark2") + theme(axis.text.x=element_text(color = 'black', size = 10),
-                                               axis.text.y=element_text(color = 'black', size=10),
-                                               axis.title.x=element_text(size = 15),
-                                               axis.title.y=element_text(size = 15))+ coord_flip() + xlab(element_blank())
+
+  if (is.null(colors)){
+
+    deseq <- ggplot(sigtab, aes(x=reorder(rownames(sigtab), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
+      geom_bar(stat='identity') + geom_text(aes_string(x='OTU', y=0, label = taxlabel), size=3)+
+      theme(axis.text.x=element_text(color = 'black', size = 10),
+            axis.text.y=element_text(color = 'black', size=10),
+            axis.title.x=element_text(size = 15),
+            axis.title.y=element_text(size = 15))+ coord_flip() + xlab(element_blank())
+
+  }
+
+
+  if (!is.null(colors)){
+    fofill <- c(colors[1], colors[2])
+    names(fofill) <- c(contrast.vector[2], contrast.vector[3])
+    deseq <- ggplot(sigtab, aes(x=reorder(rownames(sigtab), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
+      geom_bar(stat='identity') + geom_text(aes_string(x='OTU', y=0, label = taxlabel), size=3)+
+      scale_fill_manual(values = fofill) +
+      theme(axis.text.x=element_text(color = 'black', size = 10),
+            axis.text.y=element_text(color = 'black', size=10),
+            axis.title.x=element_text(size = 15),
+            axis.title.y=element_text(size = 15))+ coord_flip() + xlab(element_blank())
+
+  }
   return(list(deseq, sigtab))
 
 }
