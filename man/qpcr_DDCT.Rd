@@ -26,6 +26,3 @@ returns a dataframe of log2(2^DDct) values centered on the mean of the control g
 \description{
 CTs to log2 fold change relative to controls
 }
-\examples{
-coming soon
-}

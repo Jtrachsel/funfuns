@@ -8,7 +8,7 @@
 #' @return Returns an edgelist dataframe, should be basically ready for use with geomnet
 #' @export
 #'
-#' @examples coming soon
+#' @examples
 rcorr_to_geomnet <- function(rcorr.list, pcut=0.05, spearcut=0.6){
   require(reshape2)
   pval <- as.data.frame(rcorr.list$P)
@@ -39,12 +39,12 @@ rcorr_to_geomnet <- function(rcorr.list, pcut=0.05, spearcut=0.6){
 #'
 #' @param ccrepe.obj an object returned by the function ccrepe()
 #' @param pcut The pvalue cutoff, all correlations with pvalues above this will be excluded
-#' @param spearcutThe spearman correlation coefficient cutoff.  All correlations with spear values less than this will be removed
+#' @param spearcut The spearman correlation coefficient cutoff.  All correlations with spear values less than this will be removed
 #'   Needs improvement as this function cannot only return strong negative correlations...
 #' @return Returns an edgelist dataframe, should be basically ready for use with geomnet
 #' @export
 #'
-#' @examples coming soon
+#' @examples
 ccrepe_to_geomnet <- function(ccrepe.obj, pcut=0.05, spearcut=0.6){
   require(reshape2)
   pval <- as.data.frame(ccrepe.obj$p.values)
@@ -79,7 +79,7 @@ ccrepe_to_geomnet <- function(ccrepe.obj, pcut=0.05, spearcut=0.6){
 #' @return a dataframe with the OTU taxonomy classifications split into all the various taxonomic levels
 #' @export
 #'
-#' @examples coming soon
+#' @examples
 extract_mothur_tax <- function(filename){
 
 
@@ -110,7 +110,7 @@ extract_mothur_tax <- function(filename){
 #'  some taxonomy information.
 #' @export
 #'
-#' @examples coming soon
+#' @examples
 otu_tax_labels <- function(mothur_tax){
   tax <- mothur_tax
   swip <- tax$OTU
@@ -131,7 +131,7 @@ otu_tax_labels <- function(mothur_tax){
 #'
 #' @export
 #'
-#' @examples coming soon
+#' @examples
 prune_graph <- function(fortified.edgelist, node.dataframe, min.vert = 1){
   #hopefully this will take a fortified edgelist correlation graph from geomnet, convert it to an igraph object,
   #make sure it's undirected? is this necessary?
@@ -169,7 +169,7 @@ prune_graph <- function(fortified.edgelist, node.dataframe, min.vert = 1){
 #'  The 'type' column is user supplied.
 #' @export
 #'
-#' @examples coming soon
+#' @examples
 gather_nodes <- function(x, typ=NA){
   x <- as.data.frame(colnames(x))
   colnames(x)[1] <- 'node'
@@ -189,7 +189,7 @@ gather_nodes <- function(x, typ=NA){
 #' @return returns a dataframe containing the PERMANOVA rsq, fstat, and pvalue for each pariwise comparison
 #' @export
 #'
-#' @examples coming soon
+#' @examples
 pairwise.adonis <- function(x,factors, sim.method = 'bray', p.adjust.m = 'none', permutations=999){
   #this function taken from https://www.researchgate.net/post/How_can_I_do_PerMANOVA_pairwise_contrasts_in_R
 
@@ -238,7 +238,7 @@ pairwise.adonis <- function(x,factors, sim.method = 'bray', p.adjust.m = 'none',
 #'
 #' @export
 #'
-#' @examples coming soon
+#' @examples
 NMDS_ellipse <- function(metadata, OTU_table, grouping_set,
                          distance_method = 'bray',
                          rand_seed = 77777,
@@ -247,6 +247,7 @@ NMDS_ellipse <- function(metadata, OTU_table, grouping_set,
                          wascores = TRUE,
                          expand = FALSE){
   require(vegan)
+  require(tidyr)
   if (grouping_set %in% colnames(metadata)){
     if (all(rownames(metadata) == rownames(OTU_table))){
 
@@ -267,7 +268,7 @@ NMDS_ellipse <- function(metadata, OTU_table, grouping_set,
 
       #check to make sure at least 3 obs for each grouping_set
 
-      numobs <- metanmds %>% group_by_(grouping_set) %>% summarise(n=n())
+      numobs <- metanmds %>% group_by(grouping_set) %>% summarise(n=n())
       if (min(numobs$n) >= 3){
         ord <- ordiellipse(generic_MDS, metanmds[[grouping_set]], label = TRUE, conf = .95, kind = 'se', draw = 'none')
 
@@ -315,6 +316,8 @@ NMDS_ellipse <- function(metadata, OTU_table, grouping_set,
 
 #' Quickly plot Deseq2 results
 #'
+#' Should really split this into 2 functions, one that returns the results df with lfc shrinkage etc
+#'  and another that plots...
 #' @param DeSeq.object Deseq object that the desired pairwise contrast exists in
 #' @param phyloseq.object phyloseq object containing the taxonomy table associated with the OTUs in the Deseq object
 #' @param pvalue pvalue to filter results table with
@@ -325,16 +328,24 @@ NMDS_ellipse <- function(metadata, OTU_table, grouping_set,
 #' @return returns a list containing: [[1]] a ggplot object, [[2]] a dataframe containing the significantly differentially abundant features
 #' @export
 #'
-#' @examples coming soon
-Deseq.quickplot <- function(DeSeq.object,phyloseq.object, pvalue = 0.05, contrast.vector, taxlabel = 'Genus', colors=NULL){
+#' @examples
+Deseq.quickplot <- function(DeSeq.object,phyloseq.object,
+                            pvalue = 0.05, name,
+                            taxlabel = 'Genus', shrink_type = 'normal' ,
+                            colors=NULL, scientific=FALSE,
+                            cookscut=FALSE, alpha=0.05){
   require(ggplot2)
   require(phyloseq)
   require(DESeq2)
-  res <- results(DeSeq.object, contrast=contrast.vector)
+  tmp1 <- sub('.*_(.*)_vs_(.*)', '\\1', name)
+  tmp2 <- sub('.*_(.*)_vs_(.*)', '\\2', name)
+  # contrast.vector <- c(tmp1, tmp2, tmp3)
+  res <- results(object = DeSeq.object, name = name, cooksCutoff = cookscut, alpha = alpha)
+  res <- lfcShrink(DeSeq.object,res=res, coef = name, type = shrink_type)
   sigtab = res[which(res$padj < pvalue), ]
   sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(phyloseq.object)[rownames(sigtab), ], "matrix"))
-  sigtab$newp <- format(round(sigtab$padj, digits = 3), scientific = TRUE)
-  sigtab$Treatment <- ifelse(sigtab$log2FoldChange >=0, contrast.vector[2], contrast.vector[3])
+  sigtab$newp <- format(round(sigtab$padj, digits = 3), scientific = scientific)
+  sigtab$Treatment <- ifelse(sigtab$log2FoldChange >=0, tmp1, tmp2)
   sigtab$OTU <- rownames(sigtab)
 
   if (is.null(colors)){
@@ -379,7 +390,7 @@ Deseq.quickplot <- function(DeSeq.object,phyloseq.object, pvalue = 0.05, contras
 #' @return returns a dataframe of log2(2^DDct) values centered on the mean of the control group
 #' @export
 #'
-#' @examples coming soon
+#' @examples
 qpcr_DDCT <- function(data, exp_genes_indicies, housekeeping_gene_index, control_row_indicies, metadata_column_indicies){
   delta.CT <- data[,exp_genes_indicies] - data[,housekeeping_gene_index]
   #delta.CT <- delta.CT[,-housekeeping_gene_index]
@@ -391,4 +402,60 @@ qpcr_DDCT <- function(data, exp_genes_indicies, housekeeping_gene_index, control
 
 }
 
+#' CTs to log2 fold change relative to controls with LOD estimates
+#'
+#' @param data his is the input dataframe, should have genes as columns and samples as rows, replicates should be collpsed and only one housekeeping gene
+#'  is supported.  I don't think NA's or missing data is supported...not really sure.
+#' @param exp_genes_indicies A numeric vector containing the column indicies for the genes of experimental interest
+#' @param housekeeping_gene_index A single numeric value defining the column index for the housekeeping gene
+#' @param control_row_indicies A numeric vector containing the row indicies for the samples that are in the control group.  Final data will be
+#'  expressed relative to the mean of this group for each gene.
+#' @param metadata_column_indicies Numeric column indicies defining which columns are metadata and should be returned along with the final results
+#' @param LOD Your desired Limit of detection, all cts above this value will be replaced with NA and then this value
+#' @param LOD_conf The confidence level for the LOD estimate
+#'
+#' @return returns list of length 2, 1) a dataframe of log2(2^DDct) values centered on the mean of the control group
+#' and 2) a dataframe of LOD estimates for each gene
+#' @export
+#'
+#' @examples
+qpcr_DDCT_LOD <- function(data,
+                          exp_genes_indicies,
+                          housekeeping_gene_index,
+                          control_row_indicies,
+                          metadata_column_indicies,
+                          LOD, LOD_conf=.999){
+
+  delta.CT <- data[,exp_genes_indicies] - data[,housekeeping_gene_index]
+
+  sampleLODs <- LOD - data[,housekeeping_gene_index]
+  #delta.CT <- delta.CT[,-housekeeping_gene_index]
+  gene_av_controls <- colSums(delta.CT[control_row_indicies,])/length(control_row_indicies)  # finds the average delta CT for each gene of the control group only
+
+  geneLODs <- LOD - gene_av_controls
+  resu <- matrix(ncol=length(geneLODs), nrow = 0)
+  colnames(resu) <- names(geneLODs)
+  for (i in 1:length(sampleLODs)){
+    resu <- rbind(sampleLODs[i] - geneLODs, resu)
+  }
+  LOD_est <- apply(resu, 2, t.test, conf.level = LOD_conf)
+  lowers <- c()
+  uppers <- c()
+
+  for (i in 1:length(LOD_est)){
+    lowers[i] <- LOD_est[[i]]$conf.int[1]
+    uppers[i] <- LOD_est[[i]]$conf.int[2]
+  }
+
+  LOD_df <- data.frame(gene=names(LOD_est),
+                       l_conf=lowers,
+                       u_conf=uppers)
+
+
+  delta_delta_CT <- scale(delta.CT, center=gene_av_controls, scale = FALSE) # this is the calculation of the second delta CT, subracts the average control CT for each gene from each respective gene
+  log2expDDCT <- log(2^(-(delta_delta_CT)), base = 2)  # changes to log *technically this does nothing unless you change the log base
+  result <- cbind(log2expDDCT, data[,metadata_column_indicies])
+
+  return(list(result, LOD_df))
+}
 

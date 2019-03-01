@@ -24,6 +24,3 @@ returns a dataframe containing the PERMANOVA rsq, fstat, and pvalue for each par
 \description{
 this function taken from https://www.researchgate.net/post/How_can_I_do_PerMANOVA_pairwise_contrasts_in_R
 }
-\examples{
-coming soon
-}

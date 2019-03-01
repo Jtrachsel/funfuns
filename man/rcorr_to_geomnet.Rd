@@ -20,6 +20,3 @@ Returns an edgelist dataframe, should be basically ready for use with geomnet
 \description{
 filter rcorr object and prepare for geomnet plotting
 }
-\examples{
-coming soon
-}

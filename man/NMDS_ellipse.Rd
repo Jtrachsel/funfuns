@@ -40,6 +40,3 @@ Returns a list containing 3 items. [[1]] = input metadata with NMDS coordinates,
 \description{
 Generate NMDS points, group centroids and standard error ellipses
 }
-\examples{
-coming soon
-}

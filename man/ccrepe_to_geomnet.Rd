@@ -11,7 +11,7 @@ ccrepe_to_geomnet(ccrepe.obj, pcut = 0.05, spearcut = 0.6)
 
 \item{pcut}{The pvalue cutoff, all correlations with pvalues above this will be excluded}
 
-\item{spearcutThe}{spearman correlation coefficient cutoff.  All correlations with spear values less than this will be removed
+\item{spearcut}{The spearman correlation coefficient cutoff.  All correlations with spear values less than this will be removed
 Needs improvement as this function cannot only return strong negative correlations...}
 }
 \value{
@@ -19,7 +19,4 @@ Returns an edgelist dataframe, should be basically ready for use with geomnet
 }
 \description{
 filter ccrepe object and prepare for geomnet plotting
-}
-\examples{
-coming soon
 }

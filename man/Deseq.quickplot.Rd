@@ -4,8 +4,8 @@
 \alias{Deseq.quickplot}
 \title{Quickly plot Deseq2 results}
 \usage{
-Deseq.quickplot(DeSeq.object, phyloseq.object, pvalue = 0.05, contrast.vector,
-  taxlabel = "Genus", colors = NULL)
+Deseq.quickplot(DeSeq.object, phyloseq.object, pvalue = 0.05,
+  contrast.vector, taxlabel = "Genus", colors = NULL)
 }
 \arguments{
 \item{DeSeq.object}{Deseq object that the desired pairwise contrast exists in}
@@ -25,7 +25,4 @@ returns a list containing: [[1]] a ggplot object, [[2]] a dataframe containing t
 }
 \description{
 Quickly plot Deseq2 results
-}
-\examples{
-coming soon
 }

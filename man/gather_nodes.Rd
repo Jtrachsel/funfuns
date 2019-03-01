@@ -19,6 +19,3 @@ returns a two column dataframe. The column 'node' is populated with the column n
 \description{
 Collect type information for nodes in a network
 }
-\examples{
-coming soon
-}
