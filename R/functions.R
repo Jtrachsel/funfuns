@@ -248,6 +248,7 @@ NMDS_ellipse <- function(metadata, OTU_table, grouping_set,
                          expand = FALSE){
   require(vegan)
   require(tidyr)
+  
   if (grouping_set %in% colnames(metadata)){
     if (all(rownames(metadata) == rownames(OTU_table))){
 
@@ -268,7 +269,7 @@ NMDS_ellipse <- function(metadata, OTU_table, grouping_set,
 
       #check to make sure at least 3 obs for each grouping_set
 
-      numobs <- metanmds %>% group_by(grouping_set) %>% summarise(n=n())
+      numobs <- metanmds %>% group_by(!!grouping_set) %>% summarise(n=n())
       if (min(numobs$n) >= 3){
         ord <- ordiellipse(generic_MDS, metanmds[[grouping_set]], label = TRUE, conf = .95, kind = 'se', draw = 'none')
 
