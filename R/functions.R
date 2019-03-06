@@ -248,7 +248,7 @@ NMDS_ellipse <- function(metadata, OTU_table, grouping_set,
                          expand = FALSE){
   require(vegan)
   require(tidyr)
-  
+
   if (grouping_set %in% colnames(metadata)){
     if (all(rownames(metadata) == rownames(OTU_table))){
 
@@ -319,12 +319,18 @@ NMDS_ellipse <- function(metadata, OTU_table, grouping_set,
 #'
 #' Should really split this into 2 functions, one that returns the results df with lfc shrinkage etc
 #'  and another that plots...
+#'
 #' @param DeSeq.object Deseq object that the desired pairwise contrast exists in
 #' @param phyloseq.object phyloseq object containing the taxonomy table associated with the OTUs in the Deseq object
 #' @param pvalue pvalue to filter results table with
-#' @param contrast.vector a vector of length 3, 1st entry is the name of the factor containing the groups, second 2 are group names you want to contrast
 #' @param taxlabel the taxonomy label to use for the plot labels (needs to be present in the tax table from the phyloseq object)
 #' @param colors optional. A vector of length 2, first value will be the color associated with the 2nd value from the contrast vector, 2nd value will be the color associated with the 3rd value from the contrast vector
+#' @param name the name of the results contrast you want to display
+#' @param shrink_type one of the methods used by the DEseq function lfcshrink
+#' @param scientific do you want pvalues in scientific format?
+#' @param cookscut should we apply the cookscutoff parameter in DEseq2?
+#' @param alpha passed to DEseq2 results function
+#' @param LFC_cut filter results based on absolute value lfc? default=0
 #'
 #' @return returns a list containing: [[1]] a ggplot object, [[2]] a dataframe containing the significantly differentially abundant features
 #' @export
@@ -334,7 +340,8 @@ Deseq.quickplot <- function(DeSeq.object,phyloseq.object,
                             pvalue = 0.05, name,
                             taxlabel = 'Genus', shrink_type = 'normal' ,
                             colors=NULL, scientific=FALSE,
-                            cookscut=FALSE, alpha=0.05){
+                            cookscut=FALSE, alpha=0.05,
+                            LFC_cut=0){
   require(ggplot2)
   require(phyloseq)
   require(DESeq2)
@@ -348,6 +355,7 @@ Deseq.quickplot <- function(DeSeq.object,phyloseq.object,
   sigtab$newp <- format(round(sigtab$padj, digits = 3), scientific = scientific)
   sigtab$Treatment <- ifelse(sigtab$log2FoldChange >=0, tmp1, tmp2)
   sigtab$OTU <- rownames(sigtab)
+  sigtab <- sigtab[abs(sigtab$log2FoldChange) > LFC_cut,]
 
   if (is.null(colors)){
 
