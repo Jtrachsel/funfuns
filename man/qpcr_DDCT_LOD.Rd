@@ -8,7 +8,7 @@ qpcr_DDCT_LOD(data, exp_genes_indicies, housekeeping_gene_index,
   control_row_indicies, metadata_column_indicies, LOD, LOD_conf = 0.999)
 }
 \arguments{
-\item{data}{his is the input dataframe, should have genes as columns and samples as rows, replicates should be collpsed and only one housekeeping gene
+\item{data}{is is the input dataframe, should have genes as columns and samples as rows, replicates should be collpsed and only one housekeeping gene
 is supported.  I don't think NA's or missing data is supported...not really sure.}
 
 \item{exp_genes_indicies}{A numeric vector containing the column indicies for the genes of experimental interest}

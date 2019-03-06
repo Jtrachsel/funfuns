@@ -413,7 +413,7 @@ qpcr_DDCT <- function(data, exp_genes_indicies, housekeeping_gene_index, control
 
 #' CTs to log2 fold change relative to controls with LOD estimates
 #'
-#' @param data his is the input dataframe, should have genes as columns and samples as rows, replicates should be collpsed and only one housekeeping gene
+#' @param data is is the input dataframe, should have genes as columns and samples as rows, replicates should be collpsed and only one housekeeping gene
 #'  is supported.  I don't think NA's or missing data is supported...not really sure.
 #' @param exp_genes_indicies A numeric vector containing the column indicies for the genes of experimental interest
 #' @param housekeeping_gene_index A single numeric value defining the column index for the housekeeping gene
@@ -466,5 +466,44 @@ qpcr_DDCT_LOD <- function(data,
   result <- cbind(log2expDDCT, data[,metadata_column_indicies])
 
   return(list(result, LOD_df))
+}
+
+#' Return a darker hue of a color
+#'
+#'I did not write this function, taken from:
+#' https://gist.github.com/Jfortin1/72ef064469d1703c6b30
+#'
+#' @param color
+#' @param factor
+#'
+#' @return
+#' @export
+#'
+#' @examples
+darken <- function(color, factor=1.4){
+  col <- col2rgb(color)
+  col <- col/factor
+  col <- rgb(t(col), maxColorValue=255)
+  col
+}
+
+
+#' Return a lighter hue of a color
+#'
+#'I did not write this function, taken from:
+#' https://gist.github.com/Jfortin1/72ef064469d1703c6b30
+#'
+#' @param color
+#' @param factor
+#'
+#' @return
+#' @export
+#'
+#' @examples
+lighten <- function(color, factor=1.4){
+  col <- col2rgb(color)
+  col <- col*factor
+  col <- rgb(t(as.matrix(apply(col, 1, function(x) if (x > 255) 255 else x))), maxColorValue=255)
+  col
 }
 
