@@ -507,3 +507,62 @@ lighten <- function(color, factor=1.4){
   col
 }
 
+#' DESeq2 differential abundance for all treatments compared to 'Control'
+#'
+#' @param phyloseq phyloseq object
+#' @param day day of interest (used to subset phyloseq object)
+#' @param tissue tissue of interest (used to subset phyloseq object)
+#' @param scientific change pvals to sci notation?
+#' @param shrink_type what type of lfc shrinkage? passed to DESeq2's lfc_shrink.
+#' should be one of 'normal', 'ashr', 'apeglm'.
+#' @param alpha passed to DESeq2 results() function.
+#' @param cooks_cut apply cooks cutoff?
+#' @param pAdjustMethod what type of p.adjustment to apply?
+#'
+#' @return returns a dataframe containing all the significantly differentially abundant taxa for
+#' each treatment in your experiment compared to the 'Controls'
+#'
+#' @export
+#'
+#' @examples
+DESeq_difabund <- function(phyloseq, day, tissue, scientific = TRUE, shrink_type='normal',
+                           alpha=0.1, cooks_cut=FALSE, pAdjustMethod='BH'){
+
+  # FS12b.glom <- tax_glom(FS12b, taxrank = 'Genus')
+  FS12b.glom <- prune_samples(x = phyloseq, samples = phyloseq@sam_data$day == day & phyloseq@sam_data$tissue == tissue)
+  FS12b.glom <- prune_taxa(taxa_sums(FS12b.glom) > 1, FS12b.glom)
+  FS12.de <- phyloseq_to_deseq2(FS12b.glom, ~treatment)
+  FS12.de <- DESeq(FS12.de, test = 'Wald', fitType = 'parametric')
+
+  finres <- list()
+  resind <- 1
+  for (i in 2:length(resultsNames(FS12.de))){
+    print(resultsNames(FS12.de)[i])
+    treat <- sub('treatment_(.*)_vs_Control','\\1',resultsNames(FS12.de)[i])
+    comp <- sub('treatment_', '', resultsNames(FS12.de)[i])
+    res <- results(object = FS12.de, name = resultsNames(FS12.de)[i], alpha=alpha, cooksCutoff = cooks_cut, pAdjustMethod = pAdjustMethod)
+    res <- lfcShrink(FS12.de, coef = resultsNames(FS12.de)[i], type = shrink_type)
+    sigtab = res[which(res$padj < alpha), ]
+
+    if (nrow(sigtab) != 0){
+      # browser()
+      sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(FS12b.glom)[rownames(sigtab), ], "matrix"))
+      sigtab$newp <- format(round(sigtab$padj, digits = 3), scientific = scientific)
+      sigtab$Treatment <- ifelse(sigtab$log2FoldChange >=0, treat, paste('down',treat, sep = '_'))
+      sigtab$OTU <- rownames(sigtab)
+      sigtab$tissue <- tissue
+      sigtab$day <- day
+      sigtab$comp <- comp
+      finres[[resind]] <- sigtab
+
+      resind <- resind + 1
+    }
+
+
+
+  }
+
+  finres <- bind_rows(finres)
+  return(finres)
+
+}
