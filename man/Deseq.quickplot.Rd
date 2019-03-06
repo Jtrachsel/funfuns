@@ -4,8 +4,9 @@
 \alias{Deseq.quickplot}
 \title{Quickly plot Deseq2 results}
 \usage{
-Deseq.quickplot(DeSeq.object, phyloseq.object, pvalue = 0.05,
-  contrast.vector, taxlabel = "Genus", colors = NULL)
+Deseq.quickplot(DeSeq.object, phyloseq.object, pvalue = 0.05, name,
+  taxlabel = "Genus", shrink_type = "normal", colors = NULL,
+  scientific = FALSE, cookscut = FALSE, alpha = 0.05, LFC_cut = 0)
 }
 \arguments{
 \item{DeSeq.object}{Deseq object that the desired pairwise contrast exists in}
@@ -14,15 +15,26 @@ Deseq.quickplot(DeSeq.object, phyloseq.object, pvalue = 0.05,
 
 \item{pvalue}{pvalue to filter results table with}
 
-\item{contrast.vector}{a vector of length 3, 1st entry is the name of the factor containing the groups, second 2 are group names you want to contrast}
+\item{name}{the name of the results contrast you want to display}
 
 \item{taxlabel}{the taxonomy label to use for the plot labels (needs to be present in the tax table from the phyloseq object)}
 
+\item{shrink_type}{one of the methods used by the DEseq function lfcshrink}
+
 \item{colors}{optional. A vector of length 2, first value will be the color associated with the 2nd value from the contrast vector, 2nd value will be the color associated with the 3rd value from the contrast vector}
+
+\item{scientific}{do you want pvalues in scientific format?}
+
+\item{cookscut}{should we apply the cookscutoff parameter in DEseq2?}
+
+\item{alpha}{passed to DEseq2 results function}
+
+\item{LFC_cut}{filter results based on absolute value lfc? default=0}
 }
 \value{
 returns a list containing: [[1]] a ggplot object, [[2]] a dataframe containing the significantly differentially abundant features
 }
 \description{
-Quickly plot Deseq2 results
+Should really split this into 2 functions, one that returns the results df with lfc shrinkage etc
+ and another that plots...
 }
