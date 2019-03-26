@@ -263,7 +263,9 @@ NMDS_ellipse <- function(metadata, OTU_table, grouping_set,
       stress <- generic_MDS$stress
       nmds_points <- as.data.frame(generic_MDS$points)
       metadata <- metadata[match(rownames(generic_MDS$points), rownames(metadata)),]
+      metadata <- as.data.frame(metadata) # weird things were happening when a grouped tibble was used as metadata...
       metanmds <- cbind(metadata, nmds_points)
+      # browser()
       nmds.mean <- aggregate(metanmds[,grep("MDS", colnames(metanmds))], list(group=metanmds[[grouping_set]]), mean)
       metanmds[[grouping_set]] <- factor(metanmds[[grouping_set]]) # this 'set' needs to be passed in from function
 
