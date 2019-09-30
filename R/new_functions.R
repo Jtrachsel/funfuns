@@ -9,7 +9,7 @@
 #' @return returns a table of the test results for each GO term detected in your int_genes table
 #' @export
 #'
-#' @examples None yet.
+#' @examples #None yet.
 topGO_NonModel <- function(Int_genes, mapping_file, ont='BP', algor = 'elim', statistic='Fisher'){
 
   require(topGO)
