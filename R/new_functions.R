@@ -78,38 +78,37 @@ min_dist_to_targets <- function(tmat, pattern){
   return(min_dists)
 }
 
-#' Iterative removal of objects in a distance matrix
+#' iteratively remove objects from a distance matrix and plot at each iteration
 #'
-#' @param in_dist input distance matrix (should be type dist)
-#' @param trymax passed to metaMDS
-#' @param iterations number of removal iterations
-#' @param maxit passed to metaMDS
-#' @param autotransform passed to metaMDS
-#' @param parallel passed to metaMDS
-#' @param targ_pat passed to grep, used to identify targets (things you want to keep)
-#' @param rem_type determines how to remove objects from distance matrix, 'total' removes points
-#' with the highest cumulative distance from all other objects.  "cum_targ" removes objects with the
-#' highest cumulative distance from your specified targets. 'min' will remove points with the highest
-#' cumulative minimum distance from your targets
-#' @param nmds Should nmds be run? (can be slow)
-#' @param exclusion_prob passed to quantile(), cumulative distances falling above this cutoff will be removed
-#' each iteration, default = 0.95
+#' @param in_dist input distance matrix, must be type dist
+#' @param trymax passed to metaMDS function
+#' @param iterations number of removal iterations to try
+#' @param maxit passed to metaMDS function
+#' @param autotransform passed to metaMDS function
+#' @param exclusion_prob passed to quantile(), all observations with cumulative distances to targets (or total) above this quantile will be removed each iteration
+#' @param parallel passed to metaMDS function
+#' @param targ_pat passed to grep, defines the targets you are interested in (ones you dont want to remove).  Only used
+#' for rem_type = 'cum_targ' and 'min'
+#' @param rem_type one of 'total', 'cum_targ', and 'min'.  Specifies how to calculate distances for removal. total will pass cumulative distances to quantile, meaning the
+#' objects with the greatest cumulative distance from all other objects will be removed first. 'cum_targ' considers cumulative distances to objects selected by your
+#' targ_pat parameter, objects with greatest cumulative distances to your targets will be removed first. min considers the minimum distance to your targets, that is, the distance
+#' from each object to the closest target. probably a good choice if your targets are similar to each other and you want to keep
+#' all objects that are very similar to any of your targets.
+#' @param nmds
 #'
-#' @return returns a list of lists, one for each iteration, the list for each iteration
-#'  contains: [[1]] a dataframe for plotting, [[2]] nmds plot if specified,
-#' [[3]] a distance matrix with objects removed, [[4]] a tsne plot
+#' @return returns a big ol list
 #' @export
 #'
 #' @examples #soon
-iterative_NMDS <- function(in_dist, trymax=50,
-                           iterations = 20,
-                           maxit=1000,
-                           autotransform = FALSE,
-                           exclusion_prob = 0.95,
-                           parallel=8,
-                           targ_pat = 'SX',
-                           rem_type = 'total',
-                           nmds=FALSE){
+iterative_dist_remove <- function(in_dist, trymax=50,
+                     iterations = 20,
+                     maxit=1000,
+                     autotransform = FALSE,
+                     exclusion_prob = 0.95,
+                     parallel=8,
+                     targ_pat = 'SX',
+                     rem_type = 'total',
+                     nmds=FALSE){
   require(ggrepel)
   require(vegan)
   require(Rtsne)
@@ -173,7 +172,10 @@ iterative_NMDS <- function(in_dist, trymax=50,
       print(paste('number of genomes:', length(mainmat[1,])))
 
       ### tsne calc ###
-      rtsne_test <- Rtsne(dist, is_distance = TRUE, perplexity = 30, max_iter = 2000)
+
+      rtsne_test <- adapt_tsne(dist = dist)
+
+      # rtsne_test <- Rtsne(dist, is_distance = TRUE, perplexity = 30, max_iter = 2000)
       tsne_points <- as.data.frame(rtsne_test$Y)
       tsne_points$genome <- attributes(dist)$Labels
 
@@ -269,4 +271,50 @@ iter_plots <- function(iter_res, iter, pattern, labels = TRUE, mysize = 1){
 }
 
 
+#' wrapper for rtsne function that will set perplexity to 1 if an error occurs
+#'
+#' @param dist input distance matrix, must be type dist
+#'
+#' @return rtsne result
+#' @export
+#'
+#' @examples #soon
+adapt_tsne <- function(dist) {
+  out <- tryCatch(
+    {
 
+      message("running Rtsne function...")
+      Rtsne(dist, is_distance = TRUE, perplexity = 30, max_iter = 2000)
+
+
+    },
+    error=function(cond) {
+      message('error trying to run Rtsne...')
+      message("Here's the original error message:\n")
+      message(cond)
+      message('setting perplexity to 1')
+      # Choose a return value in case of error
+      Rtsne(dist, is_distance = TRUE, perplexity = 1, max_iter = 2000)
+      # return(NA)
+    },
+    warning=function(cond) {
+      message('warning trying to run Rtsne...')
+      message("Here's the original warning message:\n")
+      message(cond)
+      message('setting perplexity to 1')
+      # Choose a return value in case of warning
+      Rtsne(dist, is_distance = TRUE, perplexity = 1, max_iter = 2000)
+      return(NULL)
+    },
+    finally={
+      # NOTE:
+      # Here goes everything that should be executed at the end,
+      # regardless of success or error.
+      # If you want more than one expression to be executed, then you
+      # need to wrap them in curly brackets ({...}); otherwise you could
+      # just have written 'finally=<expression>'
+      message("done")
+    }
+  )
+  return(out)
+}
