@@ -5,8 +5,8 @@
 \title{iteratively remove objects from a distance matrix and plot at each iteration}
 \usage{
 iterative_dist_remove(in_dist, trymax = 50, iterations = 20,
-  maxit = 1000, autotransform = FALSE, exclusion_prob = 0.95,
-  parallel = 8, targ_pat = "SX", rem_type = "total", nmds = FALSE)
+  maxit = 1000, exclusion_prob = 0.95, parallel = 8,
+  targ_pat = "SX", rem_type = "total", run_nmds = FALSE)
 }
 \arguments{
 \item{in_dist}{input distance matrix, must be type dist}
@@ -16,8 +16,6 @@ iterative_dist_remove(in_dist, trymax = 50, iterations = 20,
 \item{iterations}{number of removal iterations to try}
 
 \item{maxit}{passed to metaMDS function}
-
-\item{autotransform}{passed to metaMDS function}
 
 \item{exclusion_prob}{passed to quantile(), all observations with cumulative distances to targets (or total) above this quantile will be removed each iteration}
 

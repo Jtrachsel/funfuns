@@ -55,11 +55,24 @@ topGO_NonModel <- function(Int_genes, mapping_file, ont='BP', algor = 'elim', st
 #'
 #' @examples #Soon
 cum_dist_to_targets <- function(tmat, pattern){
+  # browser()
+  pat_matches <- grep(pattern, rownames(tmat))
+  if (length(pat_matches) == 0){
+    stop('Your pattern was not found')
+  }
+  if (length(pat_matches == 1)){
+    warning('Only one item matched your pattern')
+    dists_to_targs <- tmat[pat_matches,]
+    return(dists_to_targs)
+  } else {
+    dists_to_targs <- tmat[pat_matches,]
+    dist_to_targets <- colSums(dists_to_targs)
+    return(dist_to_targets)
+  }
 
-  dists_to_targs <- tmat[grep(pattern, rownames(tmat)),]
-  dist_to_targets <- colSums(dists_to_targs)
-  return(dist_to_targets)
+
 }
+
 
 #' Minimum distance to targets for each other entry in a distance matrix
 #'
@@ -71,12 +84,24 @@ cum_dist_to_targets <- function(tmat, pattern){
 #'
 #' @examples #soon
 min_dist_to_targets <- function(tmat, pattern){
+  pat_matches <- grep(pattern, rownames(tmat))
+  if (length(pat_matches) == 0){
+    stop('Your pattern was not found')
+  }
+  if (length(pat_matches == 1)){
+    warning('Only one item matched your pattern')
+    dists_to_targs <- tmat[pat_matches,]
+    return(dists_to_targs)
+  } else {
+    dists_to_targs <- tmat[pat_matches, rownames(tmat),]
+    min_dists <- apply(dists_to_targs,2,min)
 
-  dists_to_targs <- tmat[grep(pattern, rownames(tmat)),]
-  min_dists <- apply(dists_to_targs,2,min)
+    return(min_dists)
+  }
 
-  return(min_dists)
+
 }
+
 
 #' iteratively remove objects from a distance matrix and plot at each iteration
 #'
@@ -84,7 +109,6 @@ min_dist_to_targets <- function(tmat, pattern){
 #' @param trymax passed to metaMDS function
 #' @param iterations number of removal iterations to try
 #' @param maxit passed to metaMDS function
-#' @param autotransform passed to metaMDS function
 #' @param exclusion_prob passed to quantile(), all observations with cumulative distances to targets (or total) above this quantile will be removed each iteration
 #' @param parallel passed to metaMDS function
 #' @param targ_pat passed to grep, defines the targets you are interested in (ones you dont want to remove).  Only used
@@ -103,12 +127,11 @@ min_dist_to_targets <- function(tmat, pattern){
 iterative_dist_remove <- function(in_dist, trymax=50,
                      iterations = 20,
                      maxit=1000,
-                     autotransform = FALSE,
                      exclusion_prob = 0.95,
                      parallel=8,
                      targ_pat = 'SX',
                      rem_type = 'total',
-                     nmds=FALSE){
+                     run_nmds=FALSE){
   require(ggrepel)
   require(vegan)
   require(Rtsne)
@@ -180,9 +203,9 @@ iterative_dist_remove <- function(in_dist, trymax=50,
       tsne_points$genome <- attributes(dist)$Labels
 
 
-      if (nmds == TRUE){
+      if (run_nmds == TRUE){
         ### NMDS calc
-        NMDS <- metaMDS(dist, trymax = trymax, autotransform = autotransform, k=2, parallel = parallel, maxit=maxit)
+        NMDS <- metaMDS(dist, trymax = trymax, autotransform = FALSE, k=2, parallel = parallel, maxit=maxit)
         nmds <- as.data.frame(NMDS$points)
         nmds$genome <- rownames(nmds)
         all_points <- merge(nmds, tsne_points, by = 'genome')
