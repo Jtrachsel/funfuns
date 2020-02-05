@@ -60,7 +60,8 @@ cum_dist_to_targets <- function(tmat, pattern){
   if (length(pat_matches) == 0){
     stop('Your pattern was not found')
   }
-  if (length(pat_matches == 1)){
+  if (length(pat_matches) == 1){
+    browser()
     warning('Only one item matched your pattern')
     dists_to_targs <- tmat[pat_matches,]
     return(dists_to_targs)
@@ -88,7 +89,7 @@ min_dist_to_targets <- function(tmat, pattern){
   if (length(pat_matches) == 0){
     stop('Your pattern was not found')
   }
-  if (length(pat_matches == 1)){
+  if (length(pat_matches) == 1){
     warning('Only one item matched your pattern')
     dists_to_targs <- tmat[pat_matches,]
     return(dists_to_targs)
@@ -116,10 +117,8 @@ min_dist_to_targets <- function(tmat, pattern){
 #' @param rem_type one of 'total', 'cum_targ', and 'min'.  Specifies how to calculate distances for removal. total will pass cumulative distances to quantile, meaning the
 #' objects with the greatest cumulative distance from all other objects will be removed first. 'cum_targ' considers cumulative distances to objects selected by your
 #' targ_pat parameter, objects with greatest cumulative distances to your targets will be removed first. min considers the minimum distance to your targets, that is, the distance
-#' from each object to the closest target. probably a good choice if your targets are similar to each other and you want to keep
-#' all objects that are very similar to any of your targets.
-#' @param nmds
-#'
+#' from each object to the closest target. probably a good choice if your targets are similar to each other and you want to keep all objects that are very similar to any of your targets.
+#' @param run_nmds should nmds be run?
 #' @return returns a big ol list
 #' @export
 #'
@@ -142,15 +141,15 @@ iterative_dist_remove <- function(in_dist, trymax=50,
 
     # finds outliers based on pwdists
     if (iter ==1){
-      dist <- in_dist
+      DIST <- in_dist
     } else {
       print(paste('using clean_mat from iter: ', iter -1))
-      dist <- final_results[[(iter-1)]][[3]]
+      DIST <- final_results[[(iter-1)]][[3]]
     }
 
-    mainmat <- as.matrix(dist)
-    # print(nrow(mainmat))
-    # print(ncol(mainmat))
+    mainmat <- as.matrix(DIST)
+    print(nrow(mainmat))
+     print(ncol(mainmat))
     if (rem_type == 'min'){
       dists_to_mine <- min_dist_to_targets(tmat = mainmat, pattern=targ_pat)
     }
@@ -164,27 +163,13 @@ iterative_dist_remove <- function(in_dist, trymax=50,
 
     }
 
-    # print(hist(dists_to_mine))
-    # using outliers is wrong because it will remove outliers with unusually small distances
-    # as well as large, meaning very similar genomes are likely to be removed as well
-    # using quantile like below will only remove genomes from the upper end of distances
-    # badones <- outliers::scores(x = dists_to_mine, type = 't', prob = 0.95)
-    # print(hist(dists_to_mine[badones], add=TRUE, color='blue'))
-    # browser()
     badones <- dists_to_mine > quantile(dists_to_mine, probs = exclusion_prob)
-
-
-
-    # badones <- outliers::scores(x = rowSums(mainmat), type = outlier_type, prob = outlier_prob)
-    # mainmat <- as.matrix(test_dist)
     remove_me <- names(badones)[badones]
     rem_cols <- which(colnames(mainmat) %in% remove_me)
     rem_rows <- which(rownames(mainmat) %in% remove_me )
     mainmat <- mainmat[-rem_rows, -rem_cols]
     clean_dist <- as.dist(mainmat)
 
-    # print(nrow(mainmat))
-    # print(ncol(mainmat))
 
     if (nrow(mainmat) ==0){
       print(paste('None/All your data was removed at iteration, but maybe something else is happening', iter))
@@ -196,23 +181,29 @@ iterative_dist_remove <- function(in_dist, trymax=50,
 
       ### tsne calc ###
 
-      rtsne_test <- adapt_tsne(dist = dist)
+      rtsne_test <- adapt_tsne(dist = DIST)
 
       # rtsne_test <- Rtsne(dist, is_distance = TRUE, perplexity = 30, max_iter = 2000)
       tsne_points <- as.data.frame(rtsne_test$Y)
-      tsne_points$genome <- attributes(dist)$Labels
+      tsne_points$genome <- attributes(DIST)$Labels
 
 
       if (run_nmds == TRUE){
         ### NMDS calc
-        NMDS <- metaMDS(dist, trymax = trymax, autotransform = FALSE, k=2, parallel = parallel, maxit=maxit)
+        NMDS <- metaMDS(DIST, trymax = trymax, autotransform = FALSE, k=2, parallel = parallel, maxit=maxit)
         nmds <- as.data.frame(NMDS$points)
         nmds$genome <- rownames(nmds)
         all_points <- merge(nmds, tsne_points, by = 'genome')
         bads <- nmds[nmds$genome %in% remove_me,]
-        ggplot(nmds, aes(x=MDS1, y=MDS2, label=genome, color=serovar)) + geom_point()
-        p1 <- ggplot(nmds, aes(x=MDS1, y=MDS2)) + geom_point(data=bads, aes(x=MDS1, y=MDS2), color='purple') +
-          geom_point() + ggtitle('NMDS: purple points will be removed...') + theme(legend.position = 'none')
+        mine <- nmds[grep(targ_pat, nmds$genome),]
+
+        p1 <- ggplot(nmds, aes(x=MDS1, y=MDS2)) +
+          geom_point() +
+          geom_point(data=bads, aes(x=MDS1, y=MDS2), color='purple') +
+          geom_point(data=mine, aes(x-MDS1, y=MDS2), color='red', size=3)
+          ggtitle('NMDS: purple points will be removed...') +
+          theme(legend.position = 'none')
+
         iter_results[[2]] <- p1
       } else{
         all_points <-tsne_points
