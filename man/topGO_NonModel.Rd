@@ -4,8 +4,13 @@
 \alias{topGO_NonModel}
 \title{GO term enrichment from non-model organisms}
 \usage{
-topGO_NonModel(Int_genes, mapping_file, ont = "BP", algor = "elim",
-  statistic = "Fisher")
+topGO_NonModel(
+  Int_genes,
+  mapping_file,
+  ont = "BP",
+  algor = "elim",
+  statistic = "Fisher"
+)
 }
 \arguments{
 \item{Int_genes}{Genes/proteins that are enriched in some way/group}

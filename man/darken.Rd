@@ -7,9 +7,17 @@
 darken(color, factor = 1.4)
 }
 \arguments{
-\item{factor}{}
+\item{color}{input color to change}
+
+\item{factor}{how much darkening to do}
+}
+\value{
+
 }
 \description{
 I did not write this function, taken from:
 https://gist.github.com/Jfortin1/72ef064469d1703c6b30
+}
+\examples{
+#soon
 }

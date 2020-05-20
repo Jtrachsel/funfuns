@@ -4,9 +4,16 @@
 \alias{DESeq_difabund}
 \title{DESeq2 differential abundance for all treatments compared to 'Control'}
 \usage{
-DESeq_difabund(phyloseq, day, tissue, scientific = TRUE,
-  shrink_type = "normal", alpha = 0.1, cooks_cut = FALSE,
-  pAdjustMethod = "BH")
+DESeq_difabund(
+  phyloseq,
+  day,
+  tissue,
+  scientific = TRUE,
+  shrink_type = "normal",
+  alpha = 0.1,
+  cooks_cut = FALSE,
+  pAdjustMethod = "BH"
+)
 }
 \arguments{
 \item{phyloseq}{phyloseq object}
@@ -32,4 +39,7 @@ each treatment in your experiment compared to the 'Controls'
 }
 \description{
 DESeq2 differential abundance for all treatments compared to 'Control'
+}
+\examples{
+#soon
 }

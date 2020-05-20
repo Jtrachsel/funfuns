@@ -4,8 +4,13 @@
 \alias{qpcr_DDCT}
 \title{CTs to log2 fold change relative to controls}
 \usage{
-qpcr_DDCT(data, exp_genes_indicies, housekeeping_gene_index,
-  control_row_indicies, metadata_column_indicies)
+qpcr_DDCT(
+  data,
+  exp_genes_indicies,
+  housekeeping_gene_index,
+  control_row_indicies,
+  metadata_column_indicies
+)
 }
 \arguments{
 \item{data}{this is the input dataframe, should have genes as columns and samples as rows, replicates should be collpsed and only one housekeeping gene
@@ -25,4 +30,7 @@ returns a dataframe of log2(2^DDct) values centered on the mean of the control g
 }
 \description{
 CTs to log2 fold change relative to controls
+}
+\examples{
+#soon
 }

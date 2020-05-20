@@ -332,3 +332,34 @@ adapt_tsne <- function(dist) {
   )
   return(out)
 }
+
+
+
+
+
+
+#' Read in a mash output lower triangle file as a dist object
+#'
+#' @param file A lower-triangle relaxed phylip distance matrix output by the mash triangle command
+#'
+#' @return Returns a distance matrix of type dist
+#' @export
+#'
+#' @examples #comming soon
+read_mash_tri <- function(file){
+
+  x <- scan(file, what = 'character', skip = 1)   # read in as vector
+  dims <- floor(sqrt(length(x) * 2))              # get dimensions
+  m <- matrix(NA, dims, dims)                     # construct matrix
+  m[upper.tri(m, diag = TRUE)] <- x               # fill in values from vector to upper tri
+  m <- t(m)                                       # transpose to get lower tri (better way?)
+  rownames(m) <- m[,1]                            # add rownames from first col
+  m <- m[,-1]                                     # remove column containing rownames
+  extracol <- c(rep(NA, nrow(m)-1), '0')          # construct vector for missing column
+  m <- cbind(m, extracol)                         # bind missing column
+  diag(m) <- 0                                    # set diagonal to zero
+  colnames(m) <- rownames(m)                      # add column names
+  m <- as.dist(m)                                 # coerce to dist type object
+  return(m)                                       # return dist object
+
+}

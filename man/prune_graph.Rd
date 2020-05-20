@@ -19,3 +19,6 @@ Returns a network fit for plotting with geomnet in which small subnetworks with 
 \description{
 Remove small unconnected subnetworks from a network
 }
+\examples{
+#soon
+}

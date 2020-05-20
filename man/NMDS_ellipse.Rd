@@ -4,9 +4,17 @@
 \alias{NMDS_ellipse}
 \title{Generate NMDS points, group centroids and standard error ellipses}
 \usage{
-NMDS_ellipse(metadata, OTU_table, grouping_set, distance_method = "bray",
-  rand_seed = 77777, MDS_trymax = 1000, autotransform = FALSE,
-  wascores = TRUE, expand = FALSE)
+NMDS_ellipse(
+  metadata,
+  OTU_table,
+  grouping_set,
+  distance_method = "bray",
+  rand_seed = 77777,
+  MDS_trymax = 1000,
+  autotransform = FALSE,
+  wascores = TRUE,
+  expand = FALSE
+)
 }
 \arguments{
 \item{metadata}{A dataframe containing the metadata relating to the samples in your OTU table.  Seems to break if this dataframe only has 1 column.}
@@ -39,4 +47,7 @@ Returns a list containing 3 items. [[1]] = input metadata with NMDS coordinates,
 }
 \description{
 Generate NMDS points, group centroids and standard error ellipses
+}
+\examples{
+#soon
 }

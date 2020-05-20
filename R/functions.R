@@ -8,7 +8,7 @@
 #' @return Returns an edgelist dataframe, should be basically ready for use with geomnet
 #' @export
 #'
-#' @examples
+#' @examples #soon
 rcorr_to_geomnet <- function(rcorr.list, pcut=0.05, spearcut=0.6){
   require(reshape2)
   pval <- as.data.frame(rcorr.list$P)
@@ -44,7 +44,7 @@ rcorr_to_geomnet <- function(rcorr.list, pcut=0.05, spearcut=0.6){
 #' @return Returns an edgelist dataframe, should be basically ready for use with geomnet
 #' @export
 #'
-#' @examples
+#' @examples #soon
 ccrepe_to_geomnet <- function(ccrepe.obj, pcut=0.05, spearcut=0.6){
   require(reshape2)
   pval <- as.data.frame(ccrepe.obj$p.values)
@@ -79,7 +79,7 @@ ccrepe_to_geomnet <- function(ccrepe.obj, pcut=0.05, spearcut=0.6){
 #' @return a dataframe with the OTU taxonomy classifications split into all the various taxonomic levels
 #' @export
 #'
-#' @examples
+#' @examples #soon
 extract_mothur_tax <- function(filename){
 
 
@@ -110,7 +110,7 @@ extract_mothur_tax <- function(filename){
 #'  some taxonomy information.
 #' @export
 #'
-#' @examples
+#' @examples #soon
 otu_tax_labels <- function(mothur_tax){
   tax <- mothur_tax
   swip <- tax$OTU
@@ -131,7 +131,7 @@ otu_tax_labels <- function(mothur_tax){
 #'
 #' @export
 #'
-#' @examples
+#' @examples #soon
 prune_graph <- function(fortified.edgelist, node.dataframe, min.vert = 1){
   #hopefully this will take a fortified edgelist correlation graph from geomnet, convert it to an igraph object,
   #make sure it's undirected? is this necessary?
@@ -169,7 +169,7 @@ prune_graph <- function(fortified.edgelist, node.dataframe, min.vert = 1){
 #'  The 'type' column is user supplied.
 #' @export
 #'
-#' @examples
+#' @examples #soon
 gather_nodes <- function(x, typ=NA){
   x <- as.data.frame(colnames(x))
   colnames(x)[1] <- 'node'
@@ -189,7 +189,7 @@ gather_nodes <- function(x, typ=NA){
 #' @return returns a dataframe containing the PERMANOVA rsq, fstat, and pvalue for each pariwise comparison
 #' @export
 #'
-#' @examples
+#' @examples #soon
 pairwise.adonis <- function(x,factors, sim.method = 'bray', p.adjust.m = 'none', permutations=999){
   #this function taken from https://www.researchgate.net/post/How_can_I_do_PerMANOVA_pairwise_contrasts_in_R
 
@@ -238,7 +238,7 @@ pairwise.adonis <- function(x,factors, sim.method = 'bray', p.adjust.m = 'none',
 #'
 #' @export
 #'
-#' @examples
+#' @examples #soon
 NMDS_ellipse <- function(metadata, OTU_table, grouping_set,
                          distance_method = 'bray',
                          rand_seed = 77777,
@@ -337,7 +337,7 @@ NMDS_ellipse <- function(metadata, OTU_table, grouping_set,
 #' @return returns a list containing: [[1]] a ggplot object, [[2]] a dataframe containing the significantly differentially abundant features
 #' @export
 #'
-#' @examples
+#' @examples #soon
 Deseq.quickplot <- function(DeSeq.object,phyloseq.object,
                             pvalue = 0.05, name,
                             taxlabel = 'Genus', shrink_type = 'normal' ,
@@ -401,7 +401,7 @@ Deseq.quickplot <- function(DeSeq.object,phyloseq.object,
 #' @return returns a dataframe of log2(2^DDct) values centered on the mean of the control group
 #' @export
 #'
-#' @examples
+#' @examples #soon
 qpcr_DDCT <- function(data, exp_genes_indicies, housekeeping_gene_index, control_row_indicies, metadata_column_indicies){
   delta.CT <- data[,exp_genes_indicies] - data[,housekeeping_gene_index]
   #delta.CT <- delta.CT[,-housekeeping_gene_index]
@@ -429,7 +429,7 @@ qpcr_DDCT <- function(data, exp_genes_indicies, housekeeping_gene_index, control
 #' and 2) a dataframe of LOD estimates for each gene
 #' @export
 #'
-#' @examples
+#' @examples #soon
 qpcr_DDCT_LOD <- function(data,
                           exp_genes_indicies,
                           housekeeping_gene_index,
@@ -475,13 +475,13 @@ qpcr_DDCT_LOD <- function(data,
 #'I did not write this function, taken from:
 #' https://gist.github.com/Jfortin1/72ef064469d1703c6b30
 #'
-#' @param color
-#' @param factor
+#' @param color input color to change
+#' @param factor how much darkening to do
 #'
 #' @return
 #' @export
 #'
-#' @examples
+#' @examples #soon
 darken <- function(color, factor=1.4){
   col <- col2rgb(color)
   col <- col/factor
@@ -495,13 +495,13 @@ darken <- function(color, factor=1.4){
 #'I did not write this function, taken from:
 #' https://gist.github.com/Jfortin1/72ef064469d1703c6b30
 #'
-#' @param color
-#' @param factor
+#' @param color color to lighten
+#' @param factor how much lightening to do
 #'
 #' @return
 #' @export
 #'
-#' @examples
+#' @examples #soon
 lighten <- function(color, factor=1.4){
   col <- col2rgb(color)
   col <- col*factor
@@ -526,7 +526,7 @@ lighten <- function(color, factor=1.4){
 #'
 #' @export
 #'
-#' @examples
+#' @examples #soon
 DESeq_difabund <- function(phyloseq, day, tissue, scientific = TRUE, shrink_type='normal',
                            alpha=0.1, cooks_cut=FALSE, pAdjustMethod='BH'){
 

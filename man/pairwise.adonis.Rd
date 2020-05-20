@@ -4,8 +4,13 @@
 \alias{pairwise.adonis}
 \title{this function taken from https://www.researchgate.net/post/How_can_I_do_PerMANOVA_pairwise_contrasts_in_R}
 \usage{
-pairwise.adonis(x, factors, sim.method = "bray", p.adjust.m = "none",
-  permutations = 999)
+pairwise.adonis(
+  x,
+  factors,
+  sim.method = "bray",
+  p.adjust.m = "none",
+  permutations = 999
+)
 }
 \arguments{
 \item{x}{An OTU table with taxa as columns and samples as rows}
@@ -23,4 +28,7 @@ returns a dataframe containing the PERMANOVA rsq, fstat, and pvalue for each par
 }
 \description{
 this function taken from https://www.researchgate.net/post/How_can_I_do_PerMANOVA_pairwise_contrasts_in_R
+}
+\examples{
+#soon
 }

@@ -15,3 +15,6 @@ a dataframe with the OTU taxonomy classifications split into all the various tax
 \description{
 Extract mothur SILVA formatted taxonomy
 }
+\examples{
+#soon
+}

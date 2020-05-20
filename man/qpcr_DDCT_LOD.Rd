@@ -4,8 +4,15 @@
 \alias{qpcr_DDCT_LOD}
 \title{CTs to log2 fold change relative to controls with LOD estimates}
 \usage{
-qpcr_DDCT_LOD(data, exp_genes_indicies, housekeeping_gene_index,
-  control_row_indicies, metadata_column_indicies, LOD, LOD_conf = 0.999)
+qpcr_DDCT_LOD(
+  data,
+  exp_genes_indicies,
+  housekeeping_gene_index,
+  control_row_indicies,
+  metadata_column_indicies,
+  LOD,
+  LOD_conf = 0.999
+)
 }
 \arguments{
 \item{data}{is is the input dataframe, should have genes as columns and samples as rows, replicates should be collpsed and only one housekeeping gene
@@ -30,4 +37,7 @@ and 2) a dataframe of LOD estimates for each gene
 }
 \description{
 CTs to log2 fold change relative to controls with LOD estimates
+}
+\examples{
+#soon
 }

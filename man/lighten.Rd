@@ -7,9 +7,17 @@
 lighten(color, factor = 1.4)
 }
 \arguments{
-\item{factor}{}
+\item{color}{color to lighten}
+
+\item{factor}{how much lightening to do}
+}
+\value{
+
 }
 \description{
 I did not write this function, taken from:
 https://gist.github.com/Jfortin1/72ef064469d1703c6b30
+}
+\examples{
+#soon
 }

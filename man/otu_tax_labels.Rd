@@ -18,3 +18,6 @@ Returns a named vector.  The values of this vector are new names for each OTU.  
 \description{
 swap OTU designations with 'genus:OTU'
 }
+\examples{
+#soon
+}

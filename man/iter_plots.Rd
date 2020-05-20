@@ -17,6 +17,9 @@ iter_plots(iter_res, iter, pattern, labels = TRUE, mysize = 1)
 
 \item{mysize}{what size do you want the points you are interested in to have?}
 }
+\value{
+
+}
 \description{
 plots the output of iterative_NMDS
 }

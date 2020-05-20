@@ -4,9 +4,17 @@
 \alias{iterative_dist_remove}
 \title{iteratively remove objects from a distance matrix and plot at each iteration}
 \usage{
-iterative_dist_remove(in_dist, trymax = 50, iterations = 20,
-  maxit = 1000, exclusion_prob = 0.95, parallel = 8,
-  targ_pat = "SX", rem_type = "total", run_nmds = FALSE)
+iterative_dist_remove(
+  in_dist,
+  trymax = 50,
+  iterations = 20,
+  maxit = 1000,
+  exclusion_prob = 0.95,
+  parallel = 8,
+  targ_pat = "SX",
+  rem_type = "total",
+  run_nmds = FALSE
+)
 }
 \arguments{
 \item{in_dist}{input distance matrix, must be type dist}
@@ -27,10 +35,9 @@ for rem_type = 'cum_targ' and 'min'}
 \item{rem_type}{one of 'total', 'cum_targ', and 'min'.  Specifies how to calculate distances for removal. total will pass cumulative distances to quantile, meaning the
 objects with the greatest cumulative distance from all other objects will be removed first. 'cum_targ' considers cumulative distances to objects selected by your
 targ_pat parameter, objects with greatest cumulative distances to your targets will be removed first. min considers the minimum distance to your targets, that is, the distance
-from each object to the closest target. probably a good choice if your targets are similar to each other and you want to keep
-all objects that are very similar to any of your targets.}
+from each object to the closest target. probably a good choice if your targets are similar to each other and you want to keep all objects that are very similar to any of your targets.}
 
-\item{nmds}{}
+\item{run_nmds}{should nmds be run?}
 }
 \value{
 returns a big ol list

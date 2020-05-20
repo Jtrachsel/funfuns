@@ -4,9 +4,19 @@
 \alias{Deseq.quickplot}
 \title{Quickly plot Deseq2 results}
 \usage{
-Deseq.quickplot(DeSeq.object, phyloseq.object, pvalue = 0.05, name,
-  taxlabel = "Genus", shrink_type = "normal", colors = NULL,
-  scientific = FALSE, cookscut = FALSE, alpha = 0.05, LFC_cut = 0)
+Deseq.quickplot(
+  DeSeq.object,
+  phyloseq.object,
+  pvalue = 0.05,
+  name,
+  taxlabel = "Genus",
+  shrink_type = "normal",
+  colors = NULL,
+  scientific = FALSE,
+  cookscut = FALSE,
+  alpha = 0.05,
+  LFC_cut = 0
+)
 }
 \arguments{
 \item{DeSeq.object}{Deseq object that the desired pairwise contrast exists in}
@@ -37,4 +47,7 @@ returns a list containing: [[1]] a ggplot object, [[2]] a dataframe containing t
 \description{
 Should really split this into 2 functions, one that returns the results df with lfc shrinkage etc
  and another that plots...
+}
+\examples{
+#soon
 }
