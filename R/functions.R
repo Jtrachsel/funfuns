@@ -568,3 +568,112 @@ DESeq_difabund <- function(phyloseq, day, tissue, scientific = TRUE, shrink_type
   return(finres)
 
 }
+
+
+
+#' DESeq2 covariate associations with OTUs
+#'
+#' @param phyloseq_obj A phyloseq object, must have tax table
+#' @param day Day to prune the phyloseq object to
+#' @param tissue tissue to prune the phyloseq object to
+#' @param covariate Covariate in sample data to calculate associations for, as a string.
+#' @param shrink_type DESeq2 shrink type
+#' @param cookscut Apply cooks cutoff?
+#' @param treatment include 'treatment' in formula?
+#' @param scale_cov scale the covariate?
+#' @param p.plot pvalue to filter plot by
+#' @param plot_lab taxonomic level to use for plotting
+#' @param l2fc_plot lfc2 to filter plot by
+#'
+#' @return returns a list of lenth 2, 1st is plot 2nd is data
+#' @export
+#'
+#' @examples #soon
+DESeq_cov_asso <-
+  function(phyloseq_obj,
+           day,
+           tissue,
+           covariate,
+           shrink_type='apeglm',
+           cookscut=TRUE,
+           treatment=FALSE,
+           scale_cov=TRUE,
+           p.plot=0.05,
+           plot_lab='Genus',
+           l2fc_plot=0.25){
+
+    #phyloseq, DESeq2, tidyverse
+    # include treatment in formula?
+    if (treatment){
+      form <- formula(paste('~', covariate, '+ treatment'))
+      print(form)
+    } else {
+      form <- formula(paste('~', covariate))
+      print(form)
+    }
+
+
+    # print(form)
+    # browser()
+    FS12b.glom <- phyloseq_obj %>%
+      prune_samples(samples = phyloseq_obj@sam_data$day %in% c(day) & phyloseq_obj@sam_data$tissue == tissue & !is.na(phyloseq_obj@sam_data[[covariate]]))
+
+    # scale covariate?
+    if (scale_cov){
+      print('scale_cov == TRUE, scaling covariate')
+      FS12b.glom@sam_data[[covariate]] <- scale(FS12b.glom@sam_data[[covariate]])
+
+    }
+
+
+    FS12b.glom <- prune_taxa(taxa_sums(FS12b.glom) > 1, FS12b.glom)
+
+    # FS12b.glom@sam_data$log_sal
+
+    FS12b.de <- phyloseq_to_deseq2(FS12b.glom, form)
+    FS12b.de <- DESeq(FS12b.de, test = 'Wald', fitType = 'parametric')
+
+    # these are not both possible.  Right now only lfcshrink is doing anytihng
+    # res <- results(FS12b.de, cooksCutoff = FALSE, name = covariate)
+    res <- results(FS12b.de, name=covariate, cooksCutoff = cookscut)
+    sigtab <- lfcShrink(dds = FS12b.de, res=res, coef = covariate, type = shrink_type)
+
+    # browser()
+    # resultsNames(FS12b.de)
+
+
+    # res <- res[!is.na(res$padj),]
+    # res <- res[res$padj < 0.1,]
+    # sigtab <- res[abs(res$log2FoldChange) > .1 ,]
+    sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(phyloseq_obj)[rownames(sigtab), ], "matrix"))
+    sigtab$newp <- format(round(sigtab$padj, digits = 3), scientific = TRUE)
+    # sigtab$Treatment <- ifelse(sigtab$log2FoldChange >=0, treat, paste('down',treat, sep = '_'))
+    sigtab$OTU <- rownames(sigtab)
+    sigtab[['direction']] <- ifelse(sigtab$log2FoldChange > 0 , 'increased', 'decreased')
+    # sigtab$salm <- ifelse(sigtab$log2FoldChange >0 , 'increased', 'decreased')
+    sigtab <- sigtab[order(sigtab$log2FoldChange),]
+    sigtab$OTU <- factor(sigtab$OTU, levels = sigtab$OTU)
+    sigtab$day <- day
+    sigtab$tissue <- tissue
+    sigtab[['covariate']] <- covariate
+    plot_tab <- sigtab %>% filter(padj < p.plot & abs(log2FoldChange) > l2fc_plot)
+    fig_tit <- paste(covariate, 'associations with OTUs')
+    if (nrow(plot_tab) > 0 ){
+      p <- plot_tab %>%
+        ggplot(aes_string(x='OTU', y='log2FoldChange', fill='direction')) +
+        geom_col(color='black') +
+        coord_flip() +
+        geom_text(aes_string(label=plot_lab, y=0)) +
+        ggtitle(fig_tit)
+
+    } else {
+      print('nothing to plot')
+      p <- ggplot() +
+        ggtitle('No sig associations')
+    }
+
+    return(list(p, sigtab))
+
+
+  }
+
