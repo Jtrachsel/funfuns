@@ -1,45 +1,57 @@
-#' GO term enrichment from non-model organisms
+
+
+#' Wrapper for TopGO - GO term enrichment analysis
 #'
-#' @param Int_genes Genes/proteins that are enriched in some way/group
-#' @param mapping_file Go term mapping file containing all genes/proteins in your experiment
-#' @param ont Which ontology should be used? CC MF or BP
-#' @param algor which algorithm should be used in the test? see topGO package
-#' @param statistic which test statistic should be used? see topGO package
+#' @param myInterestingGenes A vector of genes of interest
+#' @param mapping_file a two column file, first column is the gene_ID,
+#'  second column is a comma delimited list of GO terms associated with that gene
+#' @param ont Which GO ontology to use? options are: 'BP', 'MF', 'CC'
+#' @param algor What algorithm to use? default is 'elim'
+#' @param statistic what test statistic to use? default is 'Fisher'
+#' @param nodeSize used to filter rare GO terms, default is 5.
+#'  Rare GO terms will often show up as significant as an artifact of the test methodology
 #'
-#' @return returns a table of the test results for each GO term detected in your int_genes table
+#' @return Returns a dataframe tests for all GO terms in your data.
+#' You need to filter based on a reasonable pvalue
 #' @export
 #'
-#' @examples #None yet.
-topGO_NonModel <- function(Int_genes, mapping_file, ont='BP', algor = 'elim', statistic='Fisher'){
+#' @examples #none yet
+topGO_wrapper <- function(myInterestingGenes, #vector
+                          mapping_file,       # two column file
+                          ont='BP',
+                          algor = 'elim',
+                          statistic='Fisher',
+                          nodeSize=5){
 
   require(topGO)
-
-  coreGenes <- Int_genes
 
   geneID2GO <- readMappings(mapping_file)
   geneNames <- names(geneID2GO)
 
   # Get the list of genes of interest
-  myInterestingGenes <- coreGenes$accno
+  # this step confused me.  this
   geneList <- factor(as.integer(geneNames %in% myInterestingGenes))
   names(geneList) <- geneNames
-  head(geneList)
 
+  #initialize topGOdata object
   GOdata <- new("topGOdata", ontology = ont, allGenes = geneList,
-                annot = annFUN.gene2GO, gene2GO = geneID2GO)
-  # Run topGO with elimination test
+                annot = annFUN.gene2GO, gene2GO = geneID2GO,
+                nodeSize=nodeSize)
+  # Run topGO test
   resultTopGO.elim <- runTest(GOdata, algorithm = algor, statistic = statistic )
   allRes <- GenTable(GOdata, pval = resultTopGO.elim,
                      orderBy = "pval",
-                     topNodes = length(GOdata@graph@nodes),
+                     topNodes = length(GOdata@graph@nodes), #include all nodes
                      numChar=1000)
-  allRes <- allRes %>% mutate(ont=ifelse(ont=='BP', 'Biological Process',
-                                         ifelse(ont=='MF', 'Molecular Function', "Cellular Component"))) %>%
+  allRes <- allRes %>%
+    mutate(ont=ifelse(ont=='BP', 'Biological Process',
+                      ifelse(ont=='MF', 'Molecular Function', "Cellular Component"))) %>%
     mutate(GO_aspect = ont,
            algorithm = algor,
-           statistic = statistic) %>% dplyr::select(-ont)
+           statistic = statistic) %>%
+    dplyr::select(-ont)
+
   return(allRes)
-  #write.table(allRes, file = "Lact_vivo_topGO_BP_results.txt", sep = "\t", quote = F, col.names = T, row.names = F)
 
 }
 
