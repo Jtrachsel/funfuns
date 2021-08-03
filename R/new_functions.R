@@ -10,26 +10,29 @@
 #' @param statistic what test statistic to use? default is 'Fisher'
 #' @param nodeSize used to filter rare GO terms, default is 5.
 #'  Rare GO terms will often show up as significant as an artifact of the test methodology
+#' @param return_GOdata logical, if TRUE, the function returns a list of 2.
+#'  the first is the normal results data frame, the second in the GOdata objects
 #'
 #' @return Returns a dataframe tests for all GO terms in your data.
 #' You need to filter based on a reasonable pvalue
 #' @export
 #'
 #' @examples #none yet
+
 topGO_wrapper <- function(myInterestingGenes, #vector
                           mapping_file,       # two column file
                           ont='BP',
                           algor = 'elim',
                           statistic='Fisher',
-                          nodeSize=5){
+                          nodeSize=10,
+                          return_GOdata=F){
 
   require(topGO)
-
+  # browser()
   geneID2GO <- readMappings(mapping_file)
   geneNames <- names(geneID2GO)
 
   # Get the list of genes of interest
-  # this step confused me.  this
   geneList <- factor(as.integer(geneNames %in% myInterestingGenes))
   names(geneList) <- geneNames
 
@@ -37,23 +40,43 @@ topGO_wrapper <- function(myInterestingGenes, #vector
   GOdata <- new("topGOdata", ontology = ont, allGenes = geneList,
                 annot = annFUN.gene2GO, gene2GO = geneID2GO,
                 nodeSize=nodeSize)
+
+  # contstruct a tibble that maps interesting genes to GO terms
+  # this can add a decent amount of time to the function call...
+  interesting_genes_in_GOs <-
+    genesInTerm(GOdata) %>%
+    enframe(name='GO.ID',
+            value='genes_in_GO') %>%
+    mutate(involved_genes=map(.x=genes_in_GO, ~ .x[.x %in% myInterestingGenes]),
+           involved_genes=map_chr(.x=involved_genes, ~paste(.x, collapse = '_'))) %>%
+    dplyr::select(GO.ID, involved_genes)
+
   # Run topGO test
   resultTopGO.elim <- runTest(GOdata, algorithm = algor, statistic = statistic )
   allRes <- GenTable(GOdata, pval = resultTopGO.elim,
                      orderBy = "pval",
                      topNodes = length(GOdata@graph@nodes), #include all nodes
                      numChar=1000)
+
+  # clean up results and add in extra info
   allRes <- allRes %>%
     mutate(ont=ifelse(ont=='BP', 'Biological Process',
                       ifelse(ont=='MF', 'Molecular Function', "Cellular Component"))) %>%
     mutate(GO_aspect = ont,
            algorithm = algor,
            statistic = statistic) %>%
-    dplyr::select(-ont)
+    dplyr::select(-ont) %>%
+    left_join(interesting_genes_in_GOs)
 
-  return(allRes)
+  if (return_GOdata == TRUE){
+    return(list(allRes, GOdata))
+  } else {
+    return(allRes)
+  }
+
 
 }
+
 
 
 

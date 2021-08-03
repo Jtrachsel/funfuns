@@ -1,7 +1,7 @@
 Package: funfuns
 Type: Package
 Title: Functions I Use (Title Case)
-Version: 0.1.1
+Version: 0.1.2
 Author: Julian Trachsel
 Maintainer: Julian Trachsel <julestrachsel@gmail.com>
 Description: A bunch of functions that I wrote and sometimes use.

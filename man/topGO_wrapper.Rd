@@ -10,7 +10,8 @@ topGO_wrapper(
   ont = "BP",
   algor = "elim",
   statistic = "Fisher",
-  nodeSize = 5
+  nodeSize = 10,
+  return_GOdata = F
 )
 }
 \arguments{
@@ -27,6 +28,9 @@ second column is a comma delimited list of GO terms associated with that gene}
 
 \item{nodeSize}{used to filter rare GO terms, default is 5.
 Rare GO terms will often show up as significant as an artifact of the test methodology}
+
+\item{return_GOdata}{logical, if TRUE, the function returns a list of 2.
+the first is the normal results data frame, the second in the GOdata objects}
 }
 \value{
 Returns a dataframe tests for all GO terms in your data.
